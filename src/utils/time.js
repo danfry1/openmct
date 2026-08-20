@@ -77,13 +77,18 @@ const ASTROTIME_SAFE_PATTERN = /^(?:YYYY|MM(?!M)|DDD|DD|HH|mm|ss|SSS|\[[^\]]*\]|
  * @property {number} weekday 0 (Sunday) - 6 (Saturday)
  */
 
+/** Accepts what Moment accepted: a millisecond number or a Date. */
+function toMillis(value) {
+  return value instanceof Date ? value.getTime() : value;
+}
+
 /**
  * Broken-down UTC time for a millisecond timestamp.
- * @param {number} value milliseconds since the Unix epoch
+ * @param {number | Date} value milliseconds since the Unix epoch, or a Date
  * @returns {TimeParts}
  */
 export function utcParts(value) {
-  const civil = instantToUtc(instantFromUnixMillis(value));
+  const civil = instantToUtc(instantFromUnixMillis(toMillis(value)));
 
   return {
     year: civil.year,
@@ -100,7 +105,7 @@ export function utcParts(value) {
 
 function weekdayOf(value) {
   // 1970-01-01 was a Thursday (4).
-  const days = Math.floor(value / 86_400_000);
+  const days = Math.floor(toMillis(value) / 86_400_000);
 
   return (((days + 4) % 7) + 7) % 7;
 }
@@ -140,7 +145,7 @@ const SHORT_WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
  */
 export function zonedParts(value, timeZone) {
   const parts = {};
-  for (const part of zonedFormatter(timeZone).formatToParts(value)) {
+  for (const part of zonedFormatter(timeZone).formatToParts(toMillis(value))) {
     parts[part.type] = part.value;
   }
 
@@ -225,12 +230,13 @@ function twelveHour(hour) {
  * @returns {string}
  */
 export function formatUtc(value, pattern) {
+  const millis = toMillis(value);
   if (ASTROTIME_SAFE_PATTERN.test(pattern)) {
     // Fast path: astrotime understands these tokens natively.
-    return formatInstant(instantFromUnixMillis(value), pattern);
+    return formatInstant(instantFromUnixMillis(millis), pattern);
   }
 
-  return formatParts(utcParts(value), pattern);
+  return formatParts(utcParts(millis), pattern);
 }
 
 /**
@@ -444,6 +450,7 @@ export function isKnownTimeZone(timeZone) {
  * @returns {string}
  */
 export function zoneAbbreviation(value, timeZone) {
+  value = toMillis(value);
   const formatter = new Intl.DateTimeFormat('en-US', {
     ...(timeZone === undefined ? {} : { timeZone }),
     timeZoneName: 'short'

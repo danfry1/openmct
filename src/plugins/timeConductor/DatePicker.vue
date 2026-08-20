@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { monthNames, utcParts } from '../../utils/time.js';
+import { monthNames, parseUtc, utcParts } from '../../utils/time.js';
 
 import toggleMixin from '../../ui/mixins/toggle-mixin.js';
 
@@ -87,6 +87,17 @@ const TIME_NAMES = {
 };
 const MONTHS = monthNames();
 const DAY_MS = 24 * 60 * 60 * 1000;
+// Formats the conductor's inputs hand to the picker (moment.utc() parsed these loosely).
+const INPUT_FORMATS = [
+  'YYYY-MM-DD HH:mm:ss.SSS[Z]',
+  'YYYY-MM-DD HH:mm:ss.SSS',
+  'YYYY-MM-DD HH:mm:ss',
+  'YYYY-MM-DD HH:mm',
+  'YYYY-MM-DD h:mm:ss.SSS a',
+  'YYYY-MM-DD h:mm:ss a',
+  'YYYY-MM-DD h:mm a',
+  'YYYY-MM-DD'
+];
 const TIME_OPTIONS = (function makeRanges() {
   let arr = [];
   while (arr.length < 60) {
@@ -174,7 +185,13 @@ export default {
     },
 
     updateFromModel(defaultDateTime) {
-      const parts = utcParts(defaultDateTime);
+      // The prop is a formatted string (or absent); moment.utc() accepted
+      // both and treated undefined/unparseable input as "now".
+      let millis = typeof defaultDateTime === 'string' ? parseUtc(defaultDateTime, INPUT_FORMATS) : defaultDateTime;
+      if (millis === undefined || isNaN(millis)) {
+        millis = Date.now();
+      }
+      const parts = utcParts(millis);
 
       this.date = {
         year: parts.year,

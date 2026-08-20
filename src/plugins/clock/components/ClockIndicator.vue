@@ -53,7 +53,7 @@ export default {
   },
   computed: {
     timeTextValue() {
-      return `${formatUtc(this.timestamp, this.indicatorFormat)} ${
+      return `${formatUtc(this.timestamp ?? Date.now(), this.indicatorFormat)} ${
         this.openmct.time.getTimeSystem().name
       }`;
     }
