@@ -20,7 +20,7 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-import moment from 'moment';
+import { formatUtc, parseUtc, validateUtc } from '../../utils/time.js';
 
 /**
  * Formatter for UTC timestamps. Interprets numeric values as
@@ -62,15 +62,13 @@ export default class UTCTimeFormat {
    */
   format(value, formatString) {
     if (value !== undefined) {
-      const utc = moment.utc(value);
-
       if (formatString !== undefined && !this.isValidFormatString(formatString)) {
         throw 'Invalid format requested from UTC Time Formatter ';
       }
 
       const format = formatString || this.DATE_FORMATS.PRECISION_DEFAULT_WITH_ZULU_MOMENT;
 
-      return utc.format(format);
+      return formatUtc(value, format);
     }
   }
 
@@ -95,10 +93,10 @@ export default class UTCTimeFormat {
       return text;
     }
 
-    return moment.utc(text, Object.values(this.DATE_FORMATS)).valueOf();
+    return parseUtc(text, Object.values(this.DATE_FORMATS));
   }
 
   validate(text) {
-    return moment.utc(text, Object.values(this.DATE_FORMATS), true).isValid();
+    return validateUtc(text, Object.values(this.DATE_FORMATS));
   }
 }

@@ -215,13 +215,13 @@
 
 <script>
 import _ from 'lodash';
-import moment from 'moment';
 import { nextTick } from 'vue';
 
 import { TIME_CONTEXT_EVENTS } from '@/api/time/constants.js';
 import imageryData from '@/plugins/imagery/mixins/imageryData.js';
 import { VIEW_LARGE_ACTION_KEY } from '@/plugins/viewLargeAction/viewLargeAction.js';
 
+import { isoDurationToMillis, relativeTime } from '../../../utils/time.js';
 import { encode_url } from '../../../utils/encoding';
 import eventHelpers from '../lib/eventHelpers.js';
 import AnnotationsCanvas from './AnnotationsCanvas.vue';
@@ -406,8 +406,8 @@ export default {
         // convert css duration to IS8601 format for parsing
         const isoFormattedDuration = 'PT' + fadeOutDurationTime.toUpperCase();
         const isoFormattedDelay = 'PT' + fadeOutDelayTime.toUpperCase();
-        const parsedDuration = moment.duration(isoFormattedDuration).asMilliseconds();
-        const parsedDelay = moment.duration(isoFormattedDelay).asMilliseconds();
+        const parsedDuration = isoDurationToMillis(isoFormattedDuration);
+        const parsedDelay = isoDurationToMillis(isoFormattedDelay);
         cutoff = parsedDuration + parsedDelay;
       }
 
@@ -457,10 +457,10 @@ export default {
 
       if (this.numericDuration > TWENTYFOUR_HOURS) {
         negativeAge *= this.numericDuration / TWENTYFOUR_HOURS;
-        result = moment.duration(negativeAge, 'days').humanize(true);
+        result = relativeTime(negativeAge, 'day');
       } else if (this.numericDuration > EIGHT_HOURS) {
         negativeAge *= this.numericDuration / ONE_HOUR;
-        result = moment.duration(negativeAge, 'hours').humanize(true);
+        result = relativeTime(negativeAge, 'hour');
       } else if (this.durationFormatter) {
         result = this.durationFormatter.format(this.numericDuration);
       }

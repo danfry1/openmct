@@ -34,8 +34,9 @@
 </template>
 
 <script>
-import moment from 'moment';
 import raf from 'utils/raf';
+
+import { formatUtc } from '../../../utils/time.js';
 
 export default {
   inject: ['openmct'],
@@ -52,7 +53,7 @@ export default {
   },
   computed: {
     timeTextValue() {
-      return `${moment.utc(this.timestamp).format(this.indicatorFormat)} ${
+      return `${formatUtc(this.timestamp, this.indicatorFormat)} ${
         this.openmct.time.getTimeSystem().name
       }`;
     }

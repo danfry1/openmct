@@ -19,7 +19,6 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
-import Moment from 'moment';
 import mount from 'utils/mount';
 
 import ListViewComponent from './components/ListView.vue';
@@ -48,8 +47,7 @@ export default class FolderListView {
             },
             provide: {
               openmct: this.openmct,
-              domainObject,
-              Moment
+              domainObject
             },
             template: '<ListViewComponent></ListViewComponent>'
           },

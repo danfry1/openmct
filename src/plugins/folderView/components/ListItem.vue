@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import moment from 'moment';
+import { formatZoned } from '../../../utils/time.js';
 
 import contextMenuGesture from '../../../ui/mixins/context-menu-gesture.js';
 import objectLink from '../../../ui/mixins/object-link.js';
@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     formatTime(timestamp, format) {
-      return moment(timestamp).format(format);
+      return formatZoned(timestamp, format);
     },
     navigate() {
       this.openmct.router.navigate(this.objectLink);

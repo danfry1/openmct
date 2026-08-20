@@ -50,8 +50,9 @@
 </template>
 
 <script>
-import Moment from 'moment';
 import mount from 'utils/mount';
+
+import { formatUtc } from '../../../utils/time.js';
 
 import { objectPathToUrl } from '@/tools/url';
 import { PREVIEW_ACTION_KEY } from '@/ui/preview/PreviewAction.js';
@@ -309,7 +310,7 @@ export default {
       }
     },
     formatTime(unixTime, timeFormat) {
-      return Moment.utc(unixTime).format(timeFormat);
+      return formatUtc(unixTime, timeFormat);
     },
     getRemoveDialog() {
       const options = {

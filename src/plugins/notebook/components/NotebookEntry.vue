@@ -149,9 +149,9 @@
 </template>
 
 <script>
+import { formatUtc } from '../../../utils/time.js';
 import _ from 'lodash';
 import { Marked } from 'marked';
-import Moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
 import TextHighlight from '../../../utils/textHighlight/TextHighlight.vue';
@@ -594,7 +594,7 @@ export default {
       return position;
     },
     formatTime(unixTime, timeFormat) {
-      return Moment.utc(unixTime).format(timeFormat);
+      return formatUtc(unixTime, timeFormat);
     },
     navigateToPage() {
       this.$emit('change-section-page', {

@@ -20,7 +20,7 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-import moment from 'moment';
+import { formatZoned, parseLocal, validateLocal } from '../../utils/time.js';
 
 const DATE_FORMAT = 'YYYY-MM-DD h:mm:ss.SSS a';
 
@@ -49,7 +49,7 @@ export default function LocalTimeFormat() {
  * @returns {string} the formatted date
  */
 LocalTimeFormat.prototype.format = function (value, scale) {
-  return moment(value).format(DATE_FORMAT);
+  return formatZoned(value, DATE_FORMAT);
 };
 
 LocalTimeFormat.prototype.parse = function (text) {
@@ -57,9 +57,9 @@ LocalTimeFormat.prototype.parse = function (text) {
     return text;
   }
 
-  return moment(text, DATE_FORMATS).valueOf();
+  return parseLocal(text, DATE_FORMATS);
 };
 
 LocalTimeFormat.prototype.validate = function (text) {
-  return moment(text, DATE_FORMATS).isValid();
+  return validateLocal(text, DATE_FORMATS);
 };
