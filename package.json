@@ -161,6 +161,6 @@
     "nasa"
   ],
   "dependencies": {
-    "astrotime": "^0.2.0"
+    "astrotime": "^0.3.0"
   }
 }
