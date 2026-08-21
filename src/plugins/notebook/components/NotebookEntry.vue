@@ -151,10 +151,10 @@
 <script>
 import _ from 'lodash';
 import { Marked } from 'marked';
-import Moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
 import TextHighlight from '../../../utils/textHighlight/TextHighlight.vue';
+import { formatUtc } from '../../../utils/time.js';
 import { createNewEmbed, createNewImageEmbed, selectEntry } from '../utils/notebook-entries.js';
 import {
   saveNotebookImageDomainObject,
@@ -594,7 +594,7 @@ export default {
       return position;
     },
     formatTime(unixTime, timeFormat) {
-      return Moment.utc(unixTime).format(timeFormat);
+      return formatUtc(unixTime, timeFormat);
     },
     navigateToPage() {
       this.$emit('change-section-page', {

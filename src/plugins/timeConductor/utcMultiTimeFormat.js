@@ -20,10 +20,10 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-import moment from 'moment';
+import { formatUtc, utcParts } from '../../utils/time.js';
 
 export default function multiFormat(date) {
-  const momentified = moment.utc(date);
+  const parts = utcParts(date);
   /**
    * Uses logic from d3 Time-Scales, v3 of the API. See
    * https://github.com/d3/d3-3.x-api-reference/blob/master/Time-Scales.md
@@ -31,59 +31,19 @@ export default function multiFormat(date) {
    * Licensed
    */
   const format = [
-    [
-      '.SSS',
-      function (m) {
-        return m.milliseconds();
-      }
-    ],
-    [
-      ':ss',
-      function (m) {
-        return m.seconds();
-      }
-    ],
-    [
-      'HH:mm',
-      function (m) {
-        return m.minutes();
-      }
-    ],
-    [
-      'HH:mm',
-      function (m) {
-        return m.hours();
-      }
-    ],
-    [
-      'ddd DD',
-      function (m) {
-        return m.days() && m.date() !== 1;
-      }
-    ],
-    [
-      'MMM DD',
-      function (m) {
-        return m.date() !== 1;
-      }
-    ],
-    [
-      'MMMM',
-      function (m) {
-        return m.month();
-      }
-    ],
-    [
-      'YYYY',
-      function () {
-        return true;
-      }
-    ]
+    ['.SSS', parts.millisecond],
+    [':ss', parts.second],
+    ['HH:mm', parts.minute],
+    ['HH:mm', parts.hour],
+    ['ddd DD', parts.weekday && parts.day !== 1],
+    ['MMM DD', parts.day !== 1],
+    ['MMMM', parts.month - 1],
+    ['YYYY', true]
   ].filter(function (row) {
-    return row[1](momentified);
+    return row[1];
   })[0][0];
 
   if (format !== undefined) {
-    return moment.utc(date).format(format);
+    return formatUtc(date, format);
   }
 }

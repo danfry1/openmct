@@ -76,16 +76,27 @@
 </template>
 
 <script>
-import moment from 'moment';
-
 import toggleMixin from '../../ui/mixins/toggle-mixin.js';
+import { monthNames, parseUtc, utcParts } from '../../utils/time.js';
 
 const TIME_NAMES = {
   hours: 'Hour',
   minutes: 'Minute',
   seconds: 'Second'
 };
-const MONTHS = moment.months();
+const MONTHS = monthNames();
+const DAY_MS = 24 * 60 * 60 * 1000;
+// Formats the conductor's inputs hand to the picker (moment.utc() parsed these loosely).
+const INPUT_FORMATS = [
+  'YYYY-MM-DD HH:mm:ss.SSS[Z]',
+  'YYYY-MM-DD HH:mm:ss.SSS',
+  'YYYY-MM-DD HH:mm:ss',
+  'YYYY-MM-DD HH:mm',
+  'YYYY-MM-DD h:mm:ss.SSS a',
+  'YYYY-MM-DD h:mm:ss a',
+  'YYYY-MM-DD h:mm a',
+  'YYYY-MM-DD'
+];
 const TIME_OPTIONS = (function makeRanges() {
   let arr = [];
   while (arr.length < 60) {
@@ -142,12 +153,9 @@ export default {
   },
   methods: {
     generateTable() {
-      let m = moment
-        .utc({
-          year: this.picker.year,
-          month: this.picker.month
-        })
-        .day(0);
+      const firstOfMonth = Date.UTC(this.picker.year, this.picker.month, 1);
+      // Back up to the Sunday on or before the 1st (what moment's .day(0) did).
+      let current = firstOfMonth - utcParts(firstOfMonth).weekday * DAY_MS;
       let table = [];
       let row;
       let col;
@@ -155,13 +163,16 @@ export default {
       for (row = 0; row < 6; row += 1) {
         table.push([]);
         for (col = 0; col < 7; col += 1) {
+          const parts = utcParts(current);
           table[row].push({
-            year: m.year(),
-            month: m.month(),
-            day: m.date(),
-            dayOfYear: m.dayOfYear()
+            year: parts.year,
+            // 0-based, as everything in this component is: it indexes MONTHS,
+            // feeds Date.UTC, and wraps at 0/11. utcParts reports 1-12.
+            month: parts.month - 1,
+            day: parts.day,
+            dayOfYear: parts.dayOfYear
           });
-          m.add(1, 'days'); // Next day!
+          current += DAY_MS; // Next day!
         }
       }
 
@@ -175,38 +186,49 @@ export default {
     },
 
     updateFromModel(defaultDateTime) {
-      let m = moment.utc(defaultDateTime);
+      // The prop is a formatted string (or absent); moment.utc() accepted
+      // both and treated undefined/unparseable input as "now".
+      let millis =
+        typeof defaultDateTime === 'string'
+          ? parseUtc(defaultDateTime, INPUT_FORMATS)
+          : defaultDateTime;
+      if (millis === undefined || isNaN(millis)) {
+        millis = Date.now();
+      }
+      const parts = utcParts(millis);
 
       this.date = {
-        year: m.year(),
-        month: m.month(),
-        day: m.date()
+        year: parts.year,
+        month: parts.month - 1, // 1-12 from utcParts to this component's 0-11
+        day: parts.day
       };
       this.time = {
-        hours: m.hour(),
-        minutes: m.minute(),
-        seconds: m.second()
+        hours: parts.hour,
+        minutes: parts.minute,
+        seconds: parts.second
       };
 
       // Zoom to that date in the picker, but
       // only if the user hasn't interacted with it yet.
       if (!this.picker.interacted) {
-        this.picker.year = m.year();
-        this.picker.month = m.month();
+        this.picker.year = parts.year;
+        this.picker.month = parts.month - 1; // 1-12 to 0-11, as above
         this.updateViewForMonth();
       }
     },
 
     updateFromView() {
-      let m = moment.utc({
-        year: this.date.year,
-        month: this.date.month,
-        day: this.date.day,
-        hour: this.time.hours,
-        minute: this.time.minutes,
-        second: this.time.seconds
-      });
-      this.$emit('date-selected', m.valueOf());
+      this.$emit(
+        'date-selected',
+        Date.UTC(
+          this.date.year,
+          this.date.month,
+          this.date.day,
+          this.time.hours,
+          this.time.minutes,
+          this.time.seconds
+        )
+      );
     },
 
     isInCurrentMonth(cell) {

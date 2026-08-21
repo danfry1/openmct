@@ -20,7 +20,7 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-import moment from 'moment';
+import { formatUtc, parseUtc, TIME_FORMATS, validateUtc } from '../../utils/time.js';
 
 /**
  * Formatter for UTC timestamps. Interprets numeric values as
@@ -32,16 +32,16 @@ import moment from 'moment';
 export default class UTCTimeFormat {
   constructor() {
     this.key = 'utc';
-    this.DATE_FORMAT = `YYYY-MM-DD HH:mm:ss.SSS`;
+    this.DATE_FORMAT = TIME_FORMATS.DATE_TIME_MILLIS;
     this.DATE_FORMATS = {
       PRECISION_DEFAULT: this.DATE_FORMAT,
       PRECISION_DEFAULT_WITH_ZULU: `${this.DATE_FORMAT}Z`,
       PRECISION_DEFAULT_WITH_ZULU_MOMENT: `${this.DATE_FORMAT}[Z]`,
-      PRECISION_SECONDS: `YYYY-MM-DD HH:mm:ss`,
-      PRECISION_MINUTES: `YYYY-MM-DD HH:mm`,
-      PRECISION_DAYS: 'YYYY-MM-DD',
-      PRECISION_SECONDS_TIME_ONLY: 'HH:mm:ss',
-      PRECISION_MINUTES_TIME_ONLY: 'HH:mm'
+      PRECISION_SECONDS: TIME_FORMATS.DATE_TIME_SECONDS,
+      PRECISION_MINUTES: TIME_FORMATS.DATE_TIME_MINUTES,
+      PRECISION_DAYS: TIME_FORMATS.DATE,
+      PRECISION_SECONDS_TIME_ONLY: TIME_FORMATS.TIME_SECONDS,
+      PRECISION_MINUTES_TIME_ONLY: TIME_FORMATS.TIME_MINUTES
     };
   }
 
@@ -62,15 +62,13 @@ export default class UTCTimeFormat {
    */
   format(value, formatString) {
     if (value !== undefined) {
-      const utc = moment.utc(value);
-
       if (formatString !== undefined && !this.isValidFormatString(formatString)) {
         throw 'Invalid format requested from UTC Time Formatter ';
       }
 
       const format = formatString || this.DATE_FORMATS.PRECISION_DEFAULT_WITH_ZULU_MOMENT;
 
-      return utc.format(format);
+      return formatUtc(value, format);
     }
   }
 
@@ -95,10 +93,10 @@ export default class UTCTimeFormat {
       return text;
     }
 
-    return moment.utc(text, Object.values(this.DATE_FORMATS)).valueOf();
+    return parseUtc(text, Object.values(this.DATE_FORMATS));
   }
 
   validate(text) {
-    return moment.utc(text, Object.values(this.DATE_FORMATS), true).isValid();
+    return validateUtc(text, Object.values(this.DATE_FORMATS));
   }
 }

@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver';
-import Moment from 'moment';
 
+import { formatUtc, TIME_FORMATS } from '../../../utils/time.js';
 import { NOTEBOOK_TYPE, RESTRICTED_NOTEBOOK_TYPE } from '../notebook-constants.js';
 const UNKNOWN_USER = 'Unknown';
 const UNKNOWN_TIME = 'Unknown';
@@ -51,7 +51,7 @@ class ExportNotebookAsTextAction {
 
   formatTimeStamp(timestamp) {
     if (timestamp) {
-      return `${Moment.utc(timestamp).format('YYYY-MM-DD HH:mm:ss')} UTC`;
+      return `${formatUtc(timestamp, TIME_FORMATS.DATE_TIME_SECONDS)} UTC`;
     } else {
       return UNKNOWN_TIME;
     }

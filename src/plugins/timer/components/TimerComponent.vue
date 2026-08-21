@@ -44,14 +44,11 @@
 </template>
 
 <script>
-import momentDurationFormatSetup from 'moment-duration-format';
-import moment from 'moment-timezone';
 import raf from 'utils/raf';
 
 import throttle from '../../../utils/throttle.js';
+import { formatDurationClock } from '../../../utils/time.js';
 const refreshRateSeconds = 2;
-
-momentDurationFormatSetup(moment);
 
 export default {
   inject: ['openmct', 'currentView'],
@@ -85,7 +82,7 @@ export default {
     timeTextValue() {
       const toWholeSeconds = Math.abs(Math.floor(this.timeDelta / 1000) * 1000);
 
-      return moment.duration(toWholeSeconds, 'ms').format(this.format, { trim: false });
+      return formatDurationClock(toWholeSeconds, this.format);
     },
     timerState() {
       let timerState = 'started';

@@ -43,9 +43,14 @@
 </template>
 
 <script>
-import moment from 'moment';
-import momentTimezone from 'moment-timezone';
 import raf from 'utils/raf';
+
+import {
+  formatZoned,
+  isKnownTimeZone,
+  TIME_FORMATS,
+  zoneAbbreviation
+} from '../../../utils/time.js';
 
 export default {
   inject: ['openmct', 'domainObject'],
@@ -69,21 +74,18 @@ export default {
       return this.use24 ? this.baseFormat.replace('hh', 'HH') : this.baseFormat;
     },
     zoneName() {
-      return momentTimezone.tz.names().includes(this.timezone) ? this.timezone : 'UTC';
-    },
-    momentTime() {
-      return this.zoneName
-        ? moment.utc(this.lastTimestamp).tz(this.zoneName)
-        : moment.utc(this.lastTimestamp);
+      return isKnownTimeZone(this.timezone) ? this.timezone : 'UTC';
     },
     timeZoneAbbr() {
-      return this.momentTime.zoneAbbr();
+      return zoneAbbreviation(this.lastTimestamp, this.zoneName);
     },
     timeTextValue() {
-      return this.timeFormat && this.momentTime.format(this.timeFormat);
+      return this.timeFormat && formatZoned(this.lastTimestamp, this.timeFormat, this.zoneName);
     },
     timeAmPm() {
-      return this.use24 ? '' : this.momentTime.format('A');
+      return this.use24
+        ? ''
+        : formatZoned(this.lastTimestamp, TIME_FORMATS.MERIDIEM, this.zoneName);
     }
   },
   mounted() {

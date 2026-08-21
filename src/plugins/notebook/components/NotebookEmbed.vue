@@ -50,7 +50,6 @@
 </template>
 
 <script>
-import Moment from 'moment';
 import mount from 'utils/mount';
 
 import { objectPathToUrl } from '@/tools/url';
@@ -58,6 +57,7 @@ import { PREVIEW_ACTION_KEY } from '@/ui/preview/PreviewAction.js';
 
 import tooltipHelpers from '../../../api/tooltips/tooltipMixins.js';
 import ImageExporter from '../../../exporters/ImageExporter.js';
+import { formatUtc } from '../../../utils/time.js';
 import { updateNotebookImageDomainObject } from '../utils/notebook-image.js';
 import PainterroInstance from '../utils/painterroInstance.js';
 import RemoveDialog from '../utils/removeDialog.js';
@@ -309,7 +309,7 @@ export default {
       }
     },
     formatTime(unixTime, timeFormat) {
-      return Moment.utc(unixTime).format(timeFormat);
+      return formatUtc(unixTime, timeFormat);
     },
     getRemoveDialog() {
       const options = {

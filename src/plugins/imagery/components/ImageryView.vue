@@ -215,7 +215,6 @@
 
 <script>
 import _ from 'lodash';
-import moment from 'moment';
 import { nextTick } from 'vue';
 
 import { TIME_CONTEXT_EVENTS } from '@/api/time/constants.js';
@@ -223,6 +222,7 @@ import imageryData from '@/plugins/imagery/mixins/imageryData.js';
 import { VIEW_LARGE_ACTION_KEY } from '@/plugins/viewLargeAction/viewLargeAction.js';
 
 import { encode_url } from '../../../utils/encoding';
+import { isoDurationToMillis, relativeTime } from '../../../utils/time.js';
 import eventHelpers from '../lib/eventHelpers.js';
 import AnnotationsCanvas from './AnnotationsCanvas.vue';
 import Compass from './Compass/CompassComponent.vue';
@@ -406,9 +406,15 @@ export default {
         // convert css duration to IS8601 format for parsing
         const isoFormattedDuration = 'PT' + fadeOutDurationTime.toUpperCase();
         const isoFormattedDelay = 'PT' + fadeOutDelayTime.toUpperCase();
-        const parsedDuration = moment.duration(isoFormattedDuration).asMilliseconds();
-        const parsedDelay = moment.duration(isoFormattedDelay).asMilliseconds();
-        cutoff = parsedDuration + parsedDelay;
+        const parsedDuration = isoDurationToMillis(isoFormattedDuration);
+        const parsedDelay = isoDurationToMillis(isoFormattedDelay);
+        // The conversion above only produces valid ISO 8601 for CSS values
+        // in seconds; a value in ms yields 'PT500MS', which is not a
+        // duration. Keep the default rather than comparing against NaN,
+        // which would make every image read as stale.
+        if (Number.isFinite(parsedDuration) && Number.isFinite(parsedDelay)) {
+          cutoff = parsedDuration + parsedDelay;
+        }
       }
 
       let age = this.numericDuration;
@@ -457,10 +463,10 @@ export default {
 
       if (this.numericDuration > TWENTYFOUR_HOURS) {
         negativeAge *= this.numericDuration / TWENTYFOUR_HOURS;
-        result = moment.duration(negativeAge, 'days').humanize(true);
+        result = relativeTime(negativeAge, 'day');
       } else if (this.numericDuration > EIGHT_HOURS) {
         negativeAge *= this.numericDuration / ONE_HOUR;
-        result = moment.duration(negativeAge, 'hours').humanize(true);
+        result = relativeTime(negativeAge, 'hour');
       } else if (this.durationFormatter) {
         result = this.durationFormatter.format(this.numericDuration);
       }

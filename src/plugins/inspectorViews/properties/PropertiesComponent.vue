@@ -49,8 +49,7 @@
 </template>
 
 <script>
-import Moment from 'moment';
-
+import { formatUtc, TIME_FORMATS } from '../../../utils/time.js';
 import DetailText from './DetailText.vue';
 import Location from './LocationComponent.vue';
 
@@ -132,7 +131,7 @@ export default {
 
       if (createdTimestamp !== undefined) {
         const formattedCreatedTimestamp =
-          Moment.utc(createdTimestamp).format('YYYY-MM-DD[\n]HH:mm:ss') + ' UTC';
+          formatUtc(createdTimestamp, TIME_FORMATS.DATE_TIME_SECONDS_MULTILINE) + ' UTC';
 
         details.push({
           name: 'Created',
@@ -142,7 +141,7 @@ export default {
 
       if (modifiedTimestamp !== undefined) {
         const formattedModifiedTimestamp =
-          Moment.utc(modifiedTimestamp).format('YYYY-MM-DD[\n]HH:mm:ss') + ' UTC';
+          formatUtc(modifiedTimestamp, TIME_FORMATS.DATE_TIME_SECONDS_MULTILINE) + ' UTC';
 
         details.push({
           name: 'Modified',

@@ -20,8 +20,7 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-import momentTimezone from 'moment-timezone';
-
+import { timeZoneIdentifiers } from '../../utils/time.js';
 import ClockViewProvider from './ClockViewProvider.js';
 import ClockIndicator from './components/ClockIndicator.vue';
 
@@ -83,7 +82,7 @@ export default function ClockPlugin(options) {
           name: 'Timezone',
           control: 'autocomplete',
           cssClass: 'c-clock__timezone-selection c-menu--no-icon',
-          options: momentTimezone.tz.names(),
+          options: timeZoneIdentifiers(),
           property: ['configuration', 'timezone']
         }
       ]
