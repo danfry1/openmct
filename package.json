@@ -113,6 +113,7 @@
     "build:watch": "webpack --config ./.webpack/webpack.dev.mjs --watch",
     "info": "npx envinfo --system --browsers --npmPackages --binaries --languages --markdown",
     "test": "karma start karma.conf.cjs",
+    "test:fast": "karma start karma.fast.cjs",
     "test:debug": "KARMA_DEBUG=true karma start karma.conf.cjs",
     "test:e2e": "npm test --workspace e2e",
     "test:e2e:a11y": "npm test --workspace e2e -- --config=playwright-visual-a11y.config.js --project=chrome --grep @a11y",
